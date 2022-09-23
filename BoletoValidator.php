@@ -18,7 +18,6 @@ class BoletoValidator
         if($codigoBarras[0] == '8'){
             return self::convenio($codigoBarras);
         }else{
-           // VarDumper::dump($codigoBarras, 10, true); die(__FILE__ . ' - ' . __LINE__);
             return self::boleto($codigoBarras);
         }
     }
@@ -75,8 +74,6 @@ class BoletoValidator
     public static function boleto($linhaDigitavel)
     {
         $linhaDigitavel = str_replace([' ', '.'], '', $linhaDigitavel);
-
-        //VarDumper::dump($linhaDigitavel, 10, true); die(__FILE__ . ' - ' . __LINE__);
         
         if (!preg_match("/^[0-9]{47}$/", $linhaDigitavel)) {
             return false;

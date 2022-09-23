@@ -1,27 +1,28 @@
 <?php
 namespace sleifer\boleto;
 
-use DateTime;
+use Picqer\Barcode\BarcodeGeneratorHTML;
+use Picqer\Barcode\BarcodeGeneratorJPG;
+use Picqer\Barcode\BarcodeGeneratorPNG;
+use Picqer\Barcode\BarcodeGeneratorSVG;
 use yii\helpers\VarDumper;
 
 class Boleto{
 
     private $barcode;
-    private $field1;
-    private $field2;
-    private $field3;
-    private $field4;
-    private $field5;
     private $type;
     private $value;
-    private $due_date;
+    private $due_date = null;
     private $error;
 
     const BOLETO = 0;
     const CONVENIO = 1; 
+    const TYPE_SVG = 0;
+    const TYPE_JPG = 1;
+    const TYPE_PNG = 2;
+    const TYPE_HTML = 3;
 
     function __construct($barcode){
-
         if(!BoletoValidator::valida($barcode)){
             $this->error = 'Código de barras inválido!';
             return false;
@@ -38,29 +39,68 @@ class Boleto{
     }
 
     private function formatBoleto($barcode){
-
         $this->setValue(substr($barcode, 37, 10));
         $this->setDueDate(substr($barcode, 33, 4));
-
-        VarDumper::dump($this->due_date, 10, true); die(__FILE__ . ' - ' . __LINE__);
-       
-        VarDumper::dump($barcode, 10, true); die(__FILE__ . ' - ' . __LINE__);
+        $pos = [9, 20, 31];
+        $split = str_split($barcode);
+        foreach($pos as $i){
+            unset($split[$i]);
+        }
+        $barcode = implode($split);
+        $this->barcode = substr($barcode, 0, 4) . substr($barcode, 29, 15) . substr($barcode, 4, 25);
     } 
 
     private function formatConvenio($barcode){
-        VarDumper::dump($barcode, 10, true); die(__FILE__ . ' - ' . __LINE__);
+        $pos = [11, 23, 35, 47];
+        $split = str_split($barcode);
+        foreach($pos as $i){
+            unset($split[$i]);
+        }
+        $this->barcode = implode($split);
+        $this->setValue(substr($this->barcode, 4, 11));
     }
 
     private function setValue($value){
         $this->value = substr_replace(ltrim($value, 0), '.', -2, 0);
     }
 
-    private function setDueDate($days = null){
-        if($days){
-            $this->due_date =  date('Y-m-d', strtotime($days . " days",strtotime('1997-10-07')));
-        }else{
-            $this->due_date = null;
+    private function setDueDate($days){
+        $this->due_date =  date('Y-m-d', strtotime($days . " days",strtotime('1997-10-07')));
+    }
+
+    public function getValue(){
+        return $this->value;
+    }
+
+    public function getDueDate(){
+        return $this->due_date;
+    }
+
+    public function getType(){
+        return $this->type;
+    }
+
+    public function getError(){
+        return $this->error;
+    }
+
+    public function getBarCode($width = 2, $height = 50, $type = self::TYPE_SVG){
+        switch ($type) {
+            case 0:
+                $barcode = new BarcodeGeneratorSVG();
+                break;            
+            case 1:
+                $barcode = new BarcodeGeneratorJPG();
+                break;
+            case 2:
+                $barcode = new BarcodeGeneratorPNG();
+                break;
+            case 3:
+                $barcode = new BarcodeGeneratorHTML();
+                break;
         }
+        // VarDumper::dump($width, 10, true); die(__FILE__ . ' - ' . __LINE__);
+        return $barcode->getBarcode($this->barcode, $barcode::TYPE_INTERLEAVED_2_5, $width, $height);
     }
 
 }
