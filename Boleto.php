@@ -12,6 +12,8 @@ class Boleto{
     private $field4;
     private $field5;
     private $type;
+    private $value;
+    private $due_date;
 
     const BOLETO = 0;
     const CONVENIO = 1; 
@@ -28,10 +30,24 @@ class Boleto{
     }
 
     private function formatBoleto($barcode){
+
+        $this->value = substr_replace(ltrim(substr($barcode, 34, 10), 0), '.', -2, 0);
+
+        VarDumper::dump($this->value, 10, true); die(__FILE__ . ' - ' . __LINE__);
+
+
         VarDumper::dump($barcode, 10, true); die(__FILE__ . ' - ' . __LINE__);
     } 
 
     private function formatConvenio($barcode){
+        VarDumper::dump($barcode, 10, true); die(__FILE__ . ' - ' . __LINE__);
+    }
+
+    private function setValue($value){
+
+    }
+
+    private function setDueDate($date){
 
     }
 
