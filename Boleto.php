@@ -25,7 +25,7 @@ class Boleto{
     function __construct($barcode){
         if(!BoletoValidator::valida($barcode)){
             $this->error = 'Código de barras inválido!';
-            return false;
+            return;
         }
 
         $barcode = str_replace(['.', '-', ' '], '', $barcode);
