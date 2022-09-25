@@ -13,7 +13,7 @@ $boleto = new Boleto($bar);
 if(!$boleto->getError()){
     echo $boleto->getBarCode();
 }else{
-    echo $b->getError();
+    echo $boleto->getError();
 }
 ```
 
