@@ -5,7 +5,6 @@ use Picqer\Barcode\BarcodeGeneratorHTML;
 use Picqer\Barcode\BarcodeGeneratorJPG;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Picqer\Barcode\BarcodeGeneratorSVG;
-use yii\helpers\VarDumper;
 
 class Boleto{
 
@@ -61,11 +60,20 @@ class Boleto{
     }
 
     private function setValue($value){
-        $this->value = substr_replace(ltrim($value, 0), '.', -2, 0);
+        $val = ltrim($value, 0);
+        if(empty($val)){
+            $this->value = null;
+        }else{
+            $this->value = substr_replace(ltrim($value, 0), '.', -2, 0);
+        }
     }
 
     private function setDueDate($days){
-        $this->due_date =  date('Y-m-d', strtotime($days . " days",strtotime('1997-10-07')));
+        if($days == '0000'){
+            $this->due_date = null;
+        }else{
+            $this->due_date =  date('Y-m-d', strtotime($days . " days",strtotime('1997-10-07')));
+        }
     }
 
     public function getValue(){
@@ -99,7 +107,6 @@ class Boleto{
                 $barcode = new BarcodeGeneratorHTML();
                 break;
         }
-        // VarDumper::dump($width, 10, true); die(__FILE__ . ' - ' . __LINE__);
         return $barcode->getBarcode($this->barcode, $barcode::TYPE_INTERLEAVED_2_5, $width, $height);
     }
 
